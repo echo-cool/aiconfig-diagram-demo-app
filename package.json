@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@projectstorm/react-diagrams": "^7.0.3",
+    "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/themes": "^2.0.2",
+    "beautiful-react-diagrams": "^0.5.1",
     "next": "14.0.4",
     "react": "^18",
     "react-dom": "^18",
