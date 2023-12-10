@@ -2,28 +2,12 @@
 import Diagram, { useSchema, createSchema } from "beautiful-react-diagrams";
 import { useEffect, useMemo, useState } from "react";
 import Tree from "react-d3-tree";
+import MixedNodeElement from "../MixedNodeElement";
+import PureSvgNodeElement from "../PureSvgNodeElement";
 interface UncontrolledDiagramProps {
   metadata: any;
+  displayPrompt: any;
 }
-const initialSchema = createSchema({
-  nodes: [
-    { id: "node-1", content: "Node 1", coordinates: [250, 60] },
-    { id: "node-2", content: "Node 2", coordinates: [100, 200] },
-    { id: "node-3", content: "Node 3", coordinates: [250, 220] },
-    { id: "node-4", content: "Node 4", coordinates: [400, 200] },
-  ],
-  links: [
-    { input: "node-1", output: "node-2", label: "Link 1", readonly: true },
-    { input: "node-1", output: "node-3", label: "Link 2", readonly: true },
-    {
-      input: "node-1",
-      output: "node-4",
-      label: "Link 3",
-      readonly: true,
-      className: "my-custom-link-class",
-    },
-  ],
-});
 
 interface JSONData {
   prompts: Array<{
@@ -40,11 +24,20 @@ interface JSONData {
     };
   }>;
 }
+interface Prompt {
+  name: string;
+  input: string;
+  metadata: {
+    model: {
+      name: string;
+    };
+  };
+}
 
 interface Node {
   id: string;
   content: string;
-  coordinates: [number, number];
+  coordinates: number[];
 }
 
 interface Link {
@@ -52,110 +45,140 @@ interface Link {
   output: string;
   label: string;
   readonly: boolean;
-  className?: string;
+  className: string;
 }
 
-function parse(jsonData: JSONData) {
-  let prompts = jsonData.prompts;
-  const nodes: Node[] = jsonData.prompts.map((prompt, index) => ({
-    id: prompt.name,
+interface Data {
+  nodes: Node[];
+  links: Link[];
+}
+
+const parse = (json_data: any): Data => {
+  const prompts: Prompt[] = json_data.prompts;
+  const nodes: Node[] = prompts.map((prompt, i) => ({
+    id: `node-${i + 1}`,
     content: prompt.name,
-    coordinates: [100 * (index + 1), 100 * (index + 1)],
+    coordinates: [100 * (i + 1), 100 * (i + 1)],
+    model: prompt.metadata.model.name,
+    children: [],
   }));
 
   const links: Link[] = [];
+  prompts.forEach((prompt, i) => {
+    // const match = prompt.input.match(/\{\{([\-a-zA-Z\_0-9]+?)\.output\}\}/);
+    const regex = /\{\{([a-zA-Z_0-9]+?)\.output\}\}/g;
+    let match;
+    const matches: string[] = [];
 
-  for (let i = 0; i < prompts.length; i++) {
-    let prompt = prompts[i];
-    let regex = /\{\{(.+?)\.output\}\}/;
-    let input = prompt.input.match(regex)?.[1] || "";
-    let output = prompt.name;
+    while ((match = regex.exec(prompt.input)) !== null) {
+      // This is necessary to avoid infinite loops with zero-width matches
+      if (match.index === regex.lastIndex) {
+        regex.lastIndex++;
+      }
 
-    if (
-      nodes.some((node) => node.content === input) &&
-      nodes.some((node) => node.content === output)
-    ) {
-      links.push({
-        input: input,
-        output: output,
-        label: `Link ${i + 1}`,
-        readonly: true,
-        className: "my-custom-link-class",
-      });
+      // The result can be accessed through the `match` variable.
+      matches.push(match[1]);
     }
-  }
-  // console.log(nodes);
-  // console.log(links);
-  return createSchema({
-    nodes,
-    links,
+    matches.forEach((inputName) => {
+      // Now 'inputName' contains the matched strings, similar to 'j' in your Python code
+      // console.log(inputName); // Do something with each 'inputName'
+
+      const inputIndex = prompts.findIndex((p) => p.name === inputName);
+      if (inputIndex !== -1) {
+        links.push({
+          input: `node-${inputIndex + 1}`,
+          output: `node-${i + 1}`,
+          label: `Link ${i + 1}`,
+          readonly: true,
+          className: "my-custom-link-class",
+        });
+      }
+    });
+
+    // if (match) {
+
+    // }
   });
-}
+
+  return { nodes, links };
+};
+
+const findRootNodes = (data: Data): Node[] => {
+  const childSet = new Set(data.links.map((link) => link.output));
+  return data.nodes.filter((node) => !childSet.has(node.id));
+};
+
+const transformData = (data: Data) => {
+  const nodeMap: { [key: string]: any } = {};
+
+  data.nodes.forEach((node) => {
+    nodeMap[node.id] = { ...node, children: [] };
+  });
+
+  data.links.forEach((link) => {
+    if (nodeMap[link.input] && nodeMap[link.output]) {
+      nodeMap[link.input].children.push(nodeMap[link.output]);
+    }
+  });
+
+  let rootNodes = findRootNodes(data);
+  rootNodes = rootNodes.map((node) => nodeMap[node.id]);
+  // console.log(rootNodes);
+  const dummyRoot = [
+    {
+      id: "dummy",
+      content: "Start",
+      attributes: { model: "Input" },
+      children: rootNodes,
+    },
+  ];
+
+  const transformNode = (node: any) => {
+    return {
+      name: node.content,
+      attributes: {
+        model: node.model ? node.model : "None",
+        // other attributes can be added here
+      },
+      children: node.children.map(transformNode),
+    };
+  };
+
+  return dummyRoot.map(transformNode);
+};
 
 const UncontrolledDiagram: React.FC<UncontrolledDiagramProps> = ({
   metadata,
+  displayPrompt,
 }) => {
-  const [key, setKey] = useState(0);
-  // console.log(parse(metadata));
-  // console.log(transformDataToSchema(metadata));
-  const schema = useMemo(() => parse(metadata), [metadata]);
+  // const [key, setKey] = useState(0);
+  // // console.log(parse(metadata));
+  // // console.log(transformDataToSchema(metadata));
 
-  useEffect(() => {
-    // Update key to force re-render when metadata changes
-    setKey((prev) => prev + 1);
-  }, [metadata]); // Dependency array includes metadata
+  // const schema = useMemo(() => transformData(parse(metadata)), [metadata]);
 
-  const orgChart = {
-    name: "CEO",
-    children: [
-      {
-        name: "Manager",
-        attributes: {
-          department: "Production",
-        },
-        children: [
-          {
-            name: "Foreman",
-            attributes: {
-              department: "Fabrication",
-            },
-            children: [
-              {
-                name: "Worker",
-              },
-            ],
-          },
-          {
-            name: "Foreman",
-            attributes: {
-              department: "Assembly",
-            },
-            children: [
-              {
-                name: "Worker",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
-
+  // useEffect(() => {
+  //   // Update key to force re-render when metadata changes
+  //   setKey((prev) => prev + 1);
+  // }, [metadata]); // Dependency array includes metadata
+  const part = parse(metadata);
+  const step2 = transformData(part);
+  // console.log(step2);
   const tree_data = {
-    data: orgChart,
+    data: step2,
     totalNodeCount: 0,
     orientation: "horizontal",
     dimensions: undefined,
     centeringTransitionDuration: 800,
-    translateX: 200,
-    translateY: 300,
+    translateX: 100,
+    translateY: 500,
     collapsible: true,
     shouldCollapseNeighborNodes: false,
-    initialDepth: 1,
-    depthFactor: undefined,
+    initialDepth: 10,
+    depthFactor: 300,
     zoomable: true,
     draggable: true,
-    zoom: 1,
+    zoom: 0.5,
     scaleExtent: { min: 0.1, max: 1 },
     separation: { siblings: 2, nonSiblings: 2 },
     nodeSize: { x: 200, y: 200 },
@@ -183,6 +206,34 @@ const UncontrolledDiagram: React.FC<UncontrolledDiagramProps> = ({
     },
   };
 
+  const customNodeFnMapping = {
+    svg: {
+      description: "Default - Pure SVG node & label (IE11 compatible)",
+      fn: (rd3tProps, appState) => (
+        <PureSvgNodeElement
+          nodeDatum={rd3tProps.nodeDatum}
+          toggleNode={rd3tProps.toggleNode}
+          orientation={appState.orientation}
+        />
+      ),
+    },
+    input: {
+      description: "MixedNodeElement - Interactive nodes with inputs",
+      fn: ({ nodeDatum, toggleNode }, appState) => (
+        <MixedNodeElement
+          nodeData={nodeDatum}
+          triggerNodeToggle={toggleNode}
+          foreignObjectProps={{
+            width: appState.nodeSize.x,
+            height: appState.nodeSize.y + 100,
+            x: -50,
+            y: 50,
+          }}
+        />
+      ),
+    },
+  };
+
   return (
     <div id="treeWrapper" style={{ width: "100%", height: "100%" }}>
       {/* <div className="demo-container"> */}
@@ -190,6 +241,11 @@ const UncontrolledDiagram: React.FC<UncontrolledDiagramProps> = ({
         <Tree
           hasInteractiveNodes
           data={tree_data.data}
+          renderCustomNodeElement={(rd3tProps) =>
+            displayPrompt
+              ? customNodeFnMapping["input"].fn(rd3tProps, tree_data)
+              : customNodeFnMapping["svg"].fn(rd3tProps, tree_data)
+          }
           rootNodeClassName="demo-node"
           branchNodeClassName="demo-node"
           orientation={tree_data.orientation}

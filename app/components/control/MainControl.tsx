@@ -4,6 +4,7 @@ import JSONFileReader from "./JSONFileReader";
 interface MainControlProps {
   setMetadata: (data: any) => void;
   metadata: any;
+  setdisplayPrompt: (data: any) => void;
 }
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,8 +13,16 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormGroup from "@mui/material/FormGroup";
+import { log } from "console";
 
-const MainControl: React.FC<MainControlProps> = ({ setMetadata, metadata }) => {
+const MainControl: React.FC<MainControlProps> = ({
+  setMetadata,
+  metadata,
+  setdisplayPrompt,
+}) => {
   // Function to handle the data received from JSONFileReader
   const handleFileRead = (data: any) => {
     if (data && data.metadata) {
@@ -24,9 +33,28 @@ const MainControl: React.FC<MainControlProps> = ({ setMetadata, metadata }) => {
   };
 
   return (
-    <div className="w-1/3 p-4 bg-gray-100">
-      <div>
+    <div className="w-1/3 p-4 bg-gray-100 justify-items-center items-center">
+      <div className="flex">
         <JSONFileReader onFileRead={handleFileRead} />
+      </div>
+      <div>
+        {" "}
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                onChange={(data) => {
+                  if (data.target.checked) {
+                    setdisplayPrompt(true);
+                  } else {
+                    setdisplayPrompt(false);
+                  }
+                }}
+              />
+            }
+            label="Show Prompt"
+          />
+        </FormGroup>
       </div>
       <div>
         <h3 className="text-lg font-semibold mb-2">Metadata:</h3>

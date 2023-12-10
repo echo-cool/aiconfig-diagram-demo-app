@@ -85,10 +85,17 @@ const ContentContainer = () => {
       },
     ],
   });
+
+  const [displayPrompt, setdisplayPrompt] = useState(false);
+
   return (
     <div className="flex h-screen">
-      <MainCanvas metadata={metadata} />
-      <MainControl setMetadata={setMetadata} metadata={metadata} />
+      <MainCanvas metadata={metadata} displayPrompt={displayPrompt} />
+      <MainControl
+        setMetadata={setMetadata}
+        metadata={metadata}
+        setdisplayPrompt={setdisplayPrompt}
+      />
     </div>
   );
 };

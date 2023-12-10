@@ -10,12 +10,13 @@ const UncontrolledDiagram = dynamic(
 
 interface MainCanvasProps {
   metadata: any;
+  displayPrompt: any;
 }
 
-const MainCanvas: React.FC<MainCanvasProps> = ({ metadata }) => {
+const MainCanvas: React.FC<MainCanvasProps> = ({ metadata, displayPrompt }) => {
   return (
     <div className="flex-1 items-center justify-center">
-      <UncontrolledDiagram metadata={metadata} />
+      <UncontrolledDiagram metadata={metadata} displayPrompt={displayPrompt} />
     </div>
   );
 };
