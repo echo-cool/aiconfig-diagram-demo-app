@@ -1,4 +1,3 @@
-import { useState } from "react";
 import ContentContainer from "./components/ContentContainer";
 
 export default function DiagramWithMetadata() {
