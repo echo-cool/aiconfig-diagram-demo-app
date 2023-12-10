@@ -1,4 +1,4 @@
-data = {
+const data = {
   name: "🎧 Summarize Interview Audio",
   schema_version: "latest",
   metadata: {
@@ -80,7 +80,6 @@ data = {
   ],
 };
 
-
 function parse(jsonData) {
   let prompts = jsonData.prompts;
   const nodes = data.prompts.map((prompt, index) => ({
@@ -92,25 +91,28 @@ function parse(jsonData) {
   const links = [];
 
   for (let i = 0; i < prompts.length; i++) {
-    let prompt = prompts[i]
+    let prompt = prompts[i];
     let regex = /\{\{(.+?)\.output\}\}/;
 
-    let input = `${prompt.input.match(regex)[1]}`
-    let output = `${prompt.name}`
+    let input = `${prompt.input.match(regex)[1]}`;
+    let output = `${prompt.name}`;
 
-    if (nodes.some(node => node.content === input) && nodes.some(node => node.content === output)){
+    if (
+      nodes.some((node) => node.content === input) &&
+      nodes.some((node) => node.content === output)
+    ) {
       links.push({
-        input: input, 
-        output: output, 
-        label: `Link ${i + 1}`, 
+        input: input,
+        output: output,
+        label: `Link ${i + 1}`,
         readonly: true,
         className: "my-custom-link-class",
-      })
-    };
+      });
+    }
   }
   return {
     nodes: nodes,
-    links: links
+    links: links,
   };
 }
 // console.log(parse(data));

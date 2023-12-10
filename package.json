@@ -19,6 +19,7 @@
     "beautiful-react-diagrams": "^0.5.1",
     "next": "14.0.4",
     "react": "^18",
+    "react-d3-tree": "^3.6.1",
     "react-dom": "^18",
     "react-icons": "^4.12.0",
     "react-loading-skeleton": "^3.3.1",

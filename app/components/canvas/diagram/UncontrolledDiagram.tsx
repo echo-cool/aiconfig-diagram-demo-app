@@ -1,7 +1,6 @@
 "use client";
 import Diagram, { useSchema, createSchema } from "beautiful-react-diagrams";
 import { useEffect, useMemo, useState } from "react";
-import { parse } from "@/static/algo";
 
 interface UncontrolledDiagramProps {
   metadata: any;
@@ -29,6 +28,7 @@ const initialSchema = createSchema({
 interface JSONData {
   prompts: Array<{
     name: string;
+    input: string;
     metadata: {
       model: {
         name: string;
@@ -55,34 +55,50 @@ interface Link {
   className?: string;
 }
 
-const transformDataToSchema = (jsonData: JSONData) => {
+function parse(jsonData: JSONData) {
+  let prompts = jsonData.prompts;
   const nodes: Node[] = jsonData.prompts.map((prompt, index) => ({
-    id: `node-${index + 1}`,
+    id: prompt.name,
     content: prompt.name,
-    coordinates: [100 * (index + 1), 100 * (index + 1)], // Example coordinates logic
+    coordinates: [100 * (index + 1), 100 * (index + 1)],
   }));
 
-  const links: Link[] = nodes
-    .map((node, index) => ({
-      input: node.id,
-      output: index < nodes.length - 1 ? `node-${index + 2}` : `node-1`, // Link to the next node or loop back to the first
-      label: `Link ${index + 1}`,
-      readonly: true,
-    }))
-    .slice(0, -1); // Remove last link to prevent a loop back if not needed
+  const links: Link[] = [];
 
+  for (let i = 0; i < prompts.length; i++) {
+    let prompt = prompts[i];
+    let regex = /\{\{(.+?)\.output\}\}/;
+    let input = prompt.input.match(regex)?.[1] || "";
+    let output = prompt.name;
+
+    if (
+      nodes.some((node) => node.content === input) &&
+      nodes.some((node) => node.content === output)
+    ) {
+      links.push({
+        input: input,
+        output: output,
+        label: `Link ${i + 1}`,
+        readonly: true,
+        className: "my-custom-link-class",
+      });
+    }
+  }
+  console.log(nodes);
+  console.log(links);
   return createSchema({
     nodes,
     links,
   });
-};
+}
 
 const UncontrolledDiagram: React.FC<UncontrolledDiagramProps> = ({
   metadata,
 }) => {
   const [key, setKey] = useState(0);
-
-  const schema = useMemo(() => transformDataToSchema(metadata), [metadata]);
+  // console.log(parse(metadata));
+  // console.log(transformDataToSchema(metadata));
+  const schema = useMemo(() => parse(metadata), [metadata]);
 
   useEffect(() => {
     // Update key to force re-render when metadata changes
