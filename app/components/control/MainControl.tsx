@@ -13,60 +13,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 
-const DisplayJson = ({ data }) => {
-  if (Array.isArray(data)) {
-    return (
-      <ul className="list-disc pl-4">
-        {data.map((item, index) => (
-          <li key={index}>
-            <DisplayJson data={item} />
-          </li>
-        ))}
-      </ul>
-    );
-  } else if (typeof data === "object" && data !== null) {
-    return (
-      <div className="pl-2">
-        {Object.entries(data).map(([key, value], index) => (
-          <Accordion.Root type="single" collapsible>
-            <Accordion.Item value={key} key={index}>
-              <Accordion.Header>
-                <Accordion.Trigger className="w-full p-2 bg-blue-200 rounded-md mb-1">
-                  {key}
-                </Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Content className="p-2 bg-blue-100 rounded-md mb-2">
-                <DisplayJson data={value} />
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion.Root>
-        ))}
-      </div>
-    );
-  } else {
-    return <span>{JSON.stringify(data)}</span>;
-  }
-};
-
-const renderTable = (data) => {
-  return (
-    <table className="min-w-full bg-white">
-      <tbody>
-        {Object.entries(data).map(([key, value], index) => (
-          <tr key={index} className="text-left border-b">
-            <td className="px-4 py-2 border-r">{key}</td>
-            <td className="px-4 py-2">
-              {typeof value === "object"
-                ? JSON.stringify(value, null, 2)
-                : value.toString()}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
-
 const MainControl: React.FC<MainControlProps> = ({ setMetadata, metadata }) => {
   // Function to handle the data received from JSONFileReader
   const handleFileRead = (data: any) => {
@@ -76,13 +22,6 @@ const MainControl: React.FC<MainControlProps> = ({ setMetadata, metadata }) => {
       console.error("No metadata found in the JSON file");
     }
   };
-  const nameTablecol: GridColDef[] = ["name"];
-  const rows = [
-    {
-      id: 0,
-      name: metadata.name,
-    },
-  ];
 
   return (
     <div className="w-1/3 p-4 bg-gray-100">
