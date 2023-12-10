@@ -114,8 +114,8 @@ const MainControl: React.FC<MainControlProps> = ({
 
         <h3 className="text-lg font-semibold mt-3 mb-2">Steps:</h3>
         {Object.entries(metadata.prompts).map(([key, value], index) => (
-          <div className="mb-2">
-            <TableContainer key={key} component={Paper}>
+          <div key={key} className="mb-2">
+            <TableContainer component={Paper}>
               <Table size="small" aria-label="a dense table">
                 <TableHead>
                   <TableRow>
