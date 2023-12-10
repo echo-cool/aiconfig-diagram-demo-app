@@ -1,6 +1,22 @@
 // @ts-nocheck
 import React from "react";
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
 
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  fontSize: 10,
+  p: 4,
+};
 interface NodeData {
   name: string;
   attributes?: { [key: string]: string };
@@ -17,6 +33,10 @@ const MixedNodeElement: React.FC<MixedNodeElementProps> = ({
   triggerNodeToggle,
   foreignObjectProps = {},
 }) => {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  console.log(nodeData);
   return (
     <React.Fragment>
       <circle r={20}></circle>
@@ -26,14 +46,52 @@ const MixedNodeElement: React.FC<MixedNodeElementProps> = ({
           <h1 style={styles.title}>{nodeData.name}</h1>
           <ul style={styles.list}>
             {nodeData.attributes &&
-              Object.keys(nodeData.attributes).map((labelKey, i) => (
-                <li key={`${labelKey}-${i}`} style={styles.listItem}>
-                  {labelKey}: {nodeData.attributes[labelKey]}
-                </li>
-              ))}
+                Object.keys(nodeData.attributes).map((labelKey, i) => (
+                    <li key={`${labelKey}-${i}`} style={styles.listItem}>
+                      {labelKey}: {nodeData.attributes[labelKey]}
+                    </li>
+                ))}
           </ul>
-          <textarea style={styles.input} />
-          <button style={styles.button}>Run</button>
+          <div>
+            {/*<Button >Open Step</Button>*/}
+            <button style={styles.button} onClick={handleOpen}>Open Step</button>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+              <Box sx={style}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  {nodeData.name}
+                </Typography>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  Input
+                </Typography>
+                <textarea style={styles.input} value={nodeData.input}/>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  Model Output
+                </Typography>
+                <textarea style={styles.input}/>
+                <div>
+                  <button style={styles.button}>Run</button>
+
+                </div>
+
+              </Box>
+
+
+            </Modal>
+          </div>
+
+
+          {/*<label>Prompt</label>*/}
+          {/*<textarea style={styles.input}/>*/}
+
+          {/*<label>Model Output</label>*/}
+          {/*<textarea style={styles.input}/>*/}
+
+
         </div>
       </foreignObject>
     </React.Fragment>

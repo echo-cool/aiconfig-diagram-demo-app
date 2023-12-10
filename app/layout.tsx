@@ -3,6 +3,7 @@ import "./global.css";
 import { Inter } from "next/font/google";
 import { Container, Theme, ThemePanel } from "@radix-ui/themes";
 import NavBar from "@/app/components/helper/NavBar";
+// import {AIConfigRuntime} from "aiconfig";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,6 +20,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // const aiConfig = AIConfigRuntime.loadJSON({});
+  // console.log(aiConfig);
   return (
     <html lang="en">
       <body className={inter.variable}>

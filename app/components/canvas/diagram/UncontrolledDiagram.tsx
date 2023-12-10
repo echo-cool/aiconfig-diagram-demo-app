@@ -61,6 +61,7 @@ const parse = (json_data: any): Data => {
     content: prompt.name,
     coordinates: [100 * (i + 1), 100 * (i + 1)],
     model: prompt.metadata.model.name,
+    input: prompt.input,
     children: [],
   }));
 
@@ -129,7 +130,7 @@ const transformData = (data: Data) => {
     {
       id: "dummy",
       content: "Start",
-      attributes: { model: "Input" },
+      attributes: { model: "Input", input: "Input" },
       children: rootNodes,
     },
   ];
@@ -139,6 +140,7 @@ const transformData = (data: Data) => {
       name: node.content,
       attributes: {
         model: node.model ? node.model : "None",
+        input: node.input ? node.input : "",
         // other attributes can be added here
       },
       children: node.children.map(transformNode),

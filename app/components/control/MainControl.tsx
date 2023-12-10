@@ -18,6 +18,7 @@ import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormGroup from "@mui/material/FormGroup";
 import { log } from "console";
+import {TextField} from "@mui/material";
 
 const MainControl: React.FC<MainControlProps> = ({
   setMetadata,
@@ -37,6 +38,30 @@ const MainControl: React.FC<MainControlProps> = ({
     <div className="w-1/3 p-4 bg-gray-100 justify-items-center items-center">
       <div className="flex">
         <JSONFileReader onFileRead={handleFileRead} />
+      </div>
+      <div>
+        {Object.entries(metadata.metadata.models).map(([key, value], index) => (
+            <div key={key} className='mt-2 mb-2'>
+                {/* eslint-disable-next-line react/jsx-no-undef */}
+                <TextField   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setMetadata(
+                        {
+                            ...metadata,
+                            metadata: {
+                                ...metadata.metadata,
+                                models: {
+                                    ...metadata.metadata.models,
+                                    [key]: {
+                                        ...metadata.metadata.models[key],
+                                        api_key: event.target.value
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }} id="filled-basic" label={'API KEY '+metadata.metadata.models[key].model} variant="filled" />
+            </div>
+        ))}
       </div>
       <div>
         {" "}
