@@ -80,37 +80,39 @@ data = {
   ],
 };
 
-function parse() {
-  let output = [];
-  let prompts = data.prompts;
-  for (let i = 0; i < prompts.length; i++) {
-    let prompt = prompts[i];
-    let prompt_name = prompt.name;
-    let prompt_input = prompt.input;
-    let prompt_metadata = prompt.metadata;
-    let prompt_model = prompt_metadata.model;
-    let prompt_settings = prompt_model.settings;
-    let prompt_temperature = prompt_settings.temperature;
-    let prompt_system_prompt = prompt_settings.system_prompt;
-    let prompt_parameters = prompt_metadata.parameters;
-    let prompt_remember_chat_context = prompt_metadata.remember_chat_context;
-    output.push({
-      name: prompt_name,
-      input: prompt_input,
-      metadata: {
-        model: {
-          name: prompt_model.name,
-          settings: {
-            temperature: prompt_temperature,
-            system_prompt: prompt_system_prompt,
-          },
-        },
-        parameters: prompt_parameters,
-        remember_chat_context: prompt_remember_chat_context,
-      },
-    });
-  }
-  return output;
-}
 
-console.log(parse());
+function parse(jsonData) {
+  let prompts = jsonData.prompts;
+  const nodes = data.prompts.map((prompt, index) => ({
+    id: `node-${index + 1}`,
+    content: prompt.name,
+    coordinates: [100 * (index + 1), 100 * (index + 1)],
+  }));
+
+  const links = [];
+
+  for (let i = 0; i < prompts.length; i++) {
+    let prompt = prompts[i]
+    let regex = /\{\{(.+?)\.output\}\}/;
+
+    let input = `${prompt.input.match(regex)[1]}`
+    let output = `${prompt.name}`
+
+    if (nodes.some(node => node.content === input) && nodes.some(node => node.content === output)){
+      links.push({
+        input: input, 
+        output: output, 
+        label: `Link ${i + 1}`, 
+        readonly: true,
+        className: "my-custom-link-class",
+      })
+    };
+  }
+  return {
+    nodes: nodes,
+    links: links
+  };
+}
+// console.log(parse(data));
+
+export { parse };

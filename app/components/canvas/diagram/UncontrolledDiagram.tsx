@@ -1,6 +1,8 @@
 "use client";
 import Diagram, { useSchema, createSchema } from "beautiful-react-diagrams";
 import { useEffect, useMemo, useState } from "react";
+import { parse } from "@/static/algo";
+
 interface UncontrolledDiagramProps {
   metadata: any;
 }
