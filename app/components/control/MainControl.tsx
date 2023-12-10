@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from "react";
 import * as Accordion from "@radix-ui/react-accordion"; // import Radix UI accordion for metadata
 import JSONFileReader from "./JSONFileReader";

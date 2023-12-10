@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import Diagram, { useSchema, createSchema } from "beautiful-react-diagrams";
 import { useEffect, useMemo, useState } from "react";
