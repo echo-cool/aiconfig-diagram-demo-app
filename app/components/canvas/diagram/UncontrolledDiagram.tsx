@@ -2,7 +2,6 @@
 import Diagram, { useSchema, createSchema } from "beautiful-react-diagrams";
 import { useEffect, useMemo, useState } from "react";
 import Tree from "react-d3-tree";
-
 interface UncontrolledDiagramProps {
   metadata: any;
 }
@@ -85,8 +84,8 @@ function parse(jsonData: JSONData) {
       });
     }
   }
-  console.log(nodes);
-  console.log(links);
+  // console.log(nodes);
+  // console.log(links);
   return createSchema({
     nodes,
     links,
@@ -183,34 +182,38 @@ const UncontrolledDiagram: React.FC<UncontrolledDiagramProps> = ({
       },
     },
   };
+
   return (
     <div id="treeWrapper" style={{ width: "100%", height: "100%" }}>
-      <Tree
-        hasInteractiveNodes
-        data={tree_data.data}
-        rootNodeClassName="demo-node"
-        branchNodeClassName="demo-node"
-        orientation={tree_data.orientation}
-        dimensions={tree_data.dimensions}
-        centeringTransitionDuration={tree_data.centeringTransitionDuration}
-        translate={{
-          x: tree_data.translateX,
-          y: tree_data.translateY,
-        }}
-        collapsible={tree_data.collapsible}
-        initialDepth={tree_data.initialDepth}
-        zoomable={tree_data.zoomable}
-        draggable={tree_data.draggable}
-        zoom={tree_data.zoom}
-        scaleExtent={tree_data.scaleExtent}
-        nodeSize={tree_data.nodeSize}
-        separation={tree_data.separation}
-        enableLegacyTransitions={tree_data.enableLegacyTransitions}
-        transitionDuration={tree_data.transitionDuration}
-        depthFactor={tree_data.depthFactor}
-        styles={tree_data.styles}
-        shouldCollapseNeighborNodes={tree_data.shouldCollapseNeighborNodes}
-      />
+      {/* <div className="demo-container"> */}
+      <div className="tree-container">
+        <Tree
+          hasInteractiveNodes
+          data={tree_data.data}
+          rootNodeClassName="demo-node"
+          branchNodeClassName="demo-node"
+          orientation={tree_data.orientation}
+          dimensions={tree_data.dimensions}
+          centeringTransitionDuration={tree_data.centeringTransitionDuration}
+          translate={{
+            x: tree_data.translateX,
+            y: tree_data.translateY,
+          }}
+          collapsible={tree_data.collapsible}
+          initialDepth={tree_data.initialDepth}
+          zoomable={tree_data.zoomable}
+          draggable={tree_data.draggable}
+          zoom={tree_data.zoom}
+          scaleExtent={tree_data.scaleExtent}
+          nodeSize={tree_data.nodeSize}
+          separation={tree_data.separation}
+          enableLegacyTransitions={tree_data.enableLegacyTransitions}
+          transitionDuration={tree_data.transitionDuration}
+          depthFactor={tree_data.depthFactor}
+          styles={tree_data.styles}
+          shouldCollapseNeighborNodes={tree_data.shouldCollapseNeighborNodes}
+        />
+      </div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import MainCanvas from "./canvas/MainCanvas";
 import MainControl from "./control/MainControl";
